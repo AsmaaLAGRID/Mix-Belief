@@ -1,0 +1,48 @@
+hydra:
+  run:
+    dir: .
+  job:
+    chdir: false
+description: "Belief Mix w/ EDL+FL Loss"
+experiment: ""
+dataset:
+  name: "mr"
+  num_cls: 2
+  mode: "imbalance"  #original / imbalance / sample
+  ir: 100
+  sr: 1.0
+model:
+  name: "bert-large-uncased"
+  dropout: 0.1
+train:
+  batch_size: 16
+  epochs: 70
+  max_length: 256
+  lr: 2e-05
+  weight_decay: 1e-05
+  warmup_ratio: 0.1
+  cuda: True
+  seeds: [46, 47, 48, 49, 50]
+  seed: 46
+  finetune: True  
+  eval_interval: 50
+  patience: 30
+  uncertainty: True
+  curriculum: True
+  belief_ratio_threshold: 0.9
+  switch_epoch: 1
+mix:
+  method: "mix-belief"      # none, mixup, remix, mix-belief
+  alpha: 1.0
+  k_majority: 3
+  tau: 0.5
+  keep_org: false
+loss:
+  type: "FL"          # CE, FL, LDAM
+  fl_beta: 0.999
+  fl_gamma: 2
+eda:
+    inc_factor: 0
+output:
+  model_dir: "models_save/"
+  result_dir: "results/"
