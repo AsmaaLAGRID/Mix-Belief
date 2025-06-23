@@ -47,13 +47,13 @@ cd Mix-Belief
 ```
 
 ### 2.  Install dependencies
+pip install -r requirements.txt 
 
-```pip install -r requirements.txt 
-```
 
 ### 3.  Run Training
 
-```python main.py experiment=my_experiment_name dataset.name=mr 
+```
+    python main.py experiment=my_experiment_name dataset.name=mr 
     mix.method="mix-belief"\
     loss.type="FL"\
     train.uncertainty=true\
