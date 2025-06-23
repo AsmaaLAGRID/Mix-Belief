@@ -61,9 +61,9 @@ cd Mix-Belief
 ### 4. Outputs 
 Each experiment creates a folder in results/{dataset}/{experiment}/ with:
 
-main.log: Logging file with details of each run
+`main.log`: Logging file with details of each run
 
-_results.txt: Aggregated metrics across seeds, including:
+`_results.txt`: Aggregated metrics across seeds, including:
 
  - F1-score (Macro)
  - Geometric Mean (GM)
