@@ -1,6 +1,4 @@
-# Mix-Belief
-
-# Mix-Belief: Curriculum-Guided Data Augmentation with Uncertainty-Aware Training
+# Mix-Belief: Leveraging Belief Masses for Uncertainty-Guided Mixup in Class-Imbalanced Datasets
 
 This repository implements a belief-driven curriculum learning framework for imbalanced text classification. It combines *Mixup-style data augmentation* with *Evidential Deep Learning (EDL)* and *Focal Loss*, guided by epistemic uncertainty estimates and belief mass comparisons.
 
@@ -13,7 +11,7 @@ This repository implements a belief-driven curriculum learning framework for imb
 - Evaluates standard classification metrics, uncertainty, and calibration error
 
 ## 🔧 Project Structure
-
+```
 ├── main.py # Main entry point with Hydra configuration
 ├── configs/
 │ └── default.yaml # Main config file for dataset, model, training
@@ -24,7 +22,7 @@ This repository implements a belief-driven curriculum learning framework for imb
 │ └── losses.py # Combined loss
 │ └── models.py # Bert model and textbert classes with mixup
 │ └── utils.py # compute_metrics, create_imbalance, get_per to get indexes of samples to interpolate with mixup 
-
+```
 
 ## ⚙️ Configuration
 
@@ -47,8 +45,9 @@ cd Mix-Belief
 ```
 
 ### 2.  Install dependencies
-pip install -r requirements.txt 
-
+```
+ pip install -r requirements.txt 
+```
 
 ### 3.  Run Training
 
@@ -60,6 +59,7 @@ pip install -r requirements.txt
     train.curriculum=true
 ```
 ### 4. Outputs 
+
     Each experiment creates a folder in results/{dataset}/{experiment}/ with:
 
     main.log: Logging file with details of each run
