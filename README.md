@@ -1,6 +1,6 @@
 # Mix-Belief: Leveraging Belief Masses for Uncertainty-Guided Mixup in Class-Imbalanced Datasets
 
-This repository implements a belief-driven curriculum learning framework for imbalanced text classification. It combines *Mixup-style data augmentation* with *Evidential Deep Learning (EDL)* and *Focal Loss*, guided by epistemic uncertainty estimates and belief mass comparisons.
+This repository implements a belief-driven curriculum learning framework for imbalanced text classification. It combines *Mixup-style data augmentation* with *Evidential Deep Learning (EDL)*, guided by epistemic uncertainty estimates and belief mass comparisons.
 
 ## 📌 Overview
 
@@ -59,20 +59,16 @@ cd Mix-Belief
     train.curriculum=true
 ```
 ### 4. Outputs 
+Each experiment creates a folder in results/{dataset}/{experiment}/ with:
 
-    Each experiment creates a folder in results/{dataset}/{experiment}/ with:
+main.log: Logging file with details of each run
 
-    main.log: Logging file with details of each run
+_results.txt: Aggregated metrics across seeds, including:
 
-    _results.txt: Aggregated metrics across seeds, including:
-
-    - F1-score
-
-    - Geometric Mean (GM)
-
-    - Mean Epistemic Uncertainty
-
-    - Mean Calibration Error (MCCE)
+ - F1-score (Macro)
+ - Geometric Mean (GM)
+ - Mean Epistemic Uncertainty
+ - Mean Calibration Error (MCCE)
 
 ### Licence
-    This project is licensed under the Apache License 2.0
+This project is licensed under the **Apache License 2.0**
