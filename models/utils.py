@@ -82,7 +82,7 @@ def compute_metrics(y_true, y_pred, probs, n_classes):
         'cm': cm
     }
 
-def display_cm(save_dir, wandb, cm, run_name, dataset_name, epoch=None, step=None, data='Validation'):
+def display_cm(save_dir, wandb, cm, run_name, seed=None, epoch=None, step=None, data='Validation'):
 
     num_classes = cm.shape[0]
 
@@ -91,7 +91,7 @@ def display_cm(save_dir, wandb, cm, run_name, dataset_name, epoch=None, step=Non
     fig, ax = plt.subplots(figsize=(fig_size, fig_size))
     disp = ConfusionMatrixDisplay(confusion_matrix=cm)
     disp.plot(cmap='Blues', ax=ax)
-    ax.set_title(f"{data} CM — {run_name}\nEpoch {epoch}, Step {step}")
+    ax.set_title(f"{data} CM — {run_name}")
     plt.tight_layout()
 
     if data == 'Val':
@@ -99,11 +99,11 @@ def display_cm(save_dir, wandb, cm, run_name, dataset_name, epoch=None, step=Non
     elif data == 'Test':
         filename = f"{run_name}_Test_cm.png"
     
-    cm_dir = os.path.join(save_dir, dataset_name)
+    cm_dir = os.path.join(save_dir, f"seed_{seed}")
     os.makedirs(cm_dir, exist_ok=True)
     out_path = os.path.join(cm_dir, filename)
     fig.savefig(out_path, dpi=150)
-    wandb.log({"val/cm": wandb.Image(fig)})
+    wandb.log({f"{data}/cm": wandb.Image(fig)})
 
     plt.close(fig)
 
@@ -147,7 +147,7 @@ def save_metrics_to_csv(path: str, mode: str, metrics: dict, epoch=None, step=No
         # Compose la ligne
         row = [mode]
         if mode == 'val':
-            row += [epoch, step]
+            row += [seed, epoch, step]
         row += [
             metrics.get('loss', ''),
             metrics.get('acc', ''),

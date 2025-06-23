@@ -76,7 +76,7 @@ def kl_divergence(alpha, num_classes, device):
 
 
 def edl_loss(alpha, labels, epoch, annealing_step, num_cls, reduction=False, device="cuda:0"):
-    kl_weight=0.01
+    #kl_weight=0.01
     #evidence = exp_evidence(outputs)
     #alpha = evidence + 1
     # Evidence-based loss (Malinin & Gales)
@@ -97,7 +97,8 @@ def edl_loss(alpha, labels, epoch, annealing_step, num_cls, reduction=False, dev
     kl = kl_divergence(kl_alpha, num_cls, device)
     kl_div = annealing_coef * kl
     
-    loss = loglik + kl_div * kl_weight
+    #loss = loglik + kl_div * kl_weight
+    loss = loglik + kl_div
     
     if reduction == True:
         return torch.mean(loss)
@@ -121,7 +122,7 @@ def combined_loss(criterion, epoch, total_epochs, alpha, logits, y, num_classes,
         return edl_loss(alpha, y, epoch, 10, num_classes,reduction=reduction, device=device)
     else:
         #lam = min(epoch / total_epochs, 1.0)
-        lam = 0.8
+        lam = 0.0
         print(f"########### lam fl : {lam}###########")
         ce_loss = criterion(logits,y)
         el_loss = edl_loss(alpha, y, epoch, 10, num_classes,reduction=reduction, device=device)

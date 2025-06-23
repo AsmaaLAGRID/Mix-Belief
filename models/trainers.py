@@ -62,8 +62,8 @@ class Trainer:
         os.makedirs(self.base_path, exist_ok=True)
 
         self.logger = logging.getLogger(__name__)
-        self.model_save_path = os.path.join(self.base_path, "best_model.pt")
-        self.log_file = os.path.join(self.base_path, "log_metrics.csv")
+        self.model_save_path = os.path.join(self.base_path, f"best_model_seed_{self.cfg.train.seed}.pt")
+        self.log_file = os.path.join(self.base_path, f"log_metrics_seed_{self.cfg.train.seed}.csv")
 
         # Confusion matrix save folder
         self.cm_path = os.path.join(self.base_path, "confusion_matrices")
@@ -91,9 +91,9 @@ class Trainer:
         self.optimizer, self.scheduler = build_optimizer(cfg, self.model, self.train_loader)
 
         # for early stopping
-        self.best_val_acc= 0
-        self.early_stop = False
-        self.val_patience = 0  # successive iteration when validation acc did not improve
+        self.best_val_f1= 0
+        #self.early_stop = False
+        #self.val_patience = 0  # successive iteration when validation acc did not improve
         #self.model_save_path = os.path.join(self.cfg.output.model_dir, self.cfg.experiment + '_weights.pt')
 
 
@@ -246,16 +246,16 @@ class Trainer:
 
                 save_metrics_to_csv(self.log_file, "val", val_metrics, epoch, step, self.cfg.train.seed)
 
-                if val_metrics["acc"] > self.best_val_acc:
+                if val_metrics["f1"] > self.best_val_f1:
                     torch.save(self.model.module.state_dict(),  self.model_save_path)
                     print(f" ############### Where the model is saved : {self.model_save_path} ##############")
-                    self.best_val_acc = val_metrics['acc']
-                    self.val_patience = 0
+                    self.best_val_f1 = val_metrics['f1']
+                '''    self.val_patience = 0
                 else:
                     self.val_patience += 1
                     if self.val_patience == self.cfg.train.patience:
                         self.early_stop = True
-                        return
+                        return'''
                 self.model.train()
     
     def evaluate(self, loader, epoch=None, step=None, test=False):
@@ -352,7 +352,7 @@ class Trainer:
         self.logger.info(
                 f"Val acc={metrics['accuracy']:.4f}, gm={metrics['gm']:.4f}, f1={metrics['f1']:.4f}, precision={metrics['prec']:.4f}, recall={metrics['rec']:.4f}, Calibration error={metrics['mcce']:.4f}, loss={metrics['loss']:.4f}"
             )
-        display_cm(self.cm_path, wandb, metrics['cm'], self.cfg.experiment, self.cfg.dataset.name, epoch, step, data='Test' if test else 'Val')
+        display_cm(self.cm_path, wandb, metrics['cm'], self.cfg.experiment, self.cfg.train.seed, epoch, step, data='Test' if test else 'Val')
         if test : 
             all_embeddings = torch.cat(all_embeddings, dim=0)
             all_embeddings_np = all_embeddings.squeeze().cpu().numpy()
@@ -366,12 +366,12 @@ class Trainer:
         wandb.init(project="uncertainty-v4", config=flatten_config(self.cfg), name=self.cfg.experiment + f"_run{self.cfg.train.seed}" , reinit=True)
         for e in range(self.cfg.train.epochs):
             self.train_one_epoch(e)
-            if self.early_stop:
+            '''if self.early_stop:
                 self.logger.info(f"Early stopping triggered at epoch {e}")
-                break
+                break'''
         
         self.logger.info("Trining complete !")
-        print('Best Validation accuracy: ', self.best_val_acc)
+        print('Best Validation accuracy: ', self.best_val_f1)
         self.model.module.load_state_dict(torch.load(self.model_save_path))
         
         test_metrics = self.evaluate(self.test_loader, test=True)
@@ -463,8 +463,8 @@ class CurriculumTrainer(Trainer):
         y1 = batch.pop("label")
         x1, att1 = batch['input_ids'], batch['attention_mask']
         lam_x = np.random.beta(self.cfg.mix.alpha, self.cfg.mix.alpha)
-        #index = self._guided_confusion_mixup_indices(y1)
-        index = get_perm(x1)
+        index = self._guided_confusion_mixup_indices(y1)
+        #index = get_perm(x1)
         x2, y2, att2 = x1[index], y1[index], att1[index]
 
         if self.cfg.mix.method == 'mixup':
@@ -473,11 +473,11 @@ class CurriculumTrainer(Trainer):
             lam_y = get_remix_y(y1, y2, lam_x, self.n_pc, self.cfg.mix.k_majority, self.cfg.mix.tau, self.device)
         elif self.cfg.mix.method == 'mix-belief':
             lam_x = np.random.beta(2, 1)
-            '''if lam_x > 0.5 :
+            if lam_x > 0.5 :
                 lam_y = 1
             else:
-                lam_y = lam_x'''
-            freq_tensor = torch.tensor(self.n_pc, dtype=torch.float32, device=device)
+                lam_y = lam_x
+            '''freq_tensor = torch.tensor(self.n_pc, dtype=torch.float32, device=device)
             freq_y1 = freq_tensor[y1]
             freq_y2 = freq_tensor[y2]
 
@@ -487,7 +487,7 @@ class CurriculumTrainer(Trainer):
                 is_y1_minority & (lam_tensor > 0.5),
                 torch.tensor(1.0, device=device),
                 lam_tensor
-            )
+            )'''
 
     
         with autocast(device_type='cuda', dtype=torch.float16):

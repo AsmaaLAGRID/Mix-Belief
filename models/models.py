@@ -165,7 +165,14 @@ class TextBERT(nn.Module):
         super(TextBERT, self).__init__()
         self.output_dim = num_class
         self.bert = MyBertModel.from_pretrained(pretrained_model)
+        
         # Freeze bert layers
+        for param in self.bert.embeddings.parameters():
+            param.requires_grad = False
+        for layer in self.bert.encoder.layer[:4]:  # Gel des 6 premières couches
+            for param in layer.parameters():
+                param.requires_grad = False
+        
         if not fine_tune:
             for p in self.bert.parameters():
                 p.requires_grad = False

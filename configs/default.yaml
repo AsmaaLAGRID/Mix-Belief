@@ -16,7 +16,7 @@ model:
   dropout: 0.1
 train:
   batch_size: 16
-  epochs: 70
+  epochs: 200
   max_length: 256
   lr: 2e-05
   weight_decay: 1e-05
